@@ -75,8 +75,9 @@ URLLINE_FLAG=false
 #START Defaults for options and parameter
 SCRIPT_FILE=${0##*/}
 IDENTIFICATION_LINK_STRING="https://github.com/seicke-harting/IEC_61406_QR_Code_Generator"
-QR_CODE_FILE_TMP=$(mktemp -u).png
 QR_CODE_FILE="QR_Code_61406_2.png"
+QR_CODE_FORMAT="${QR_CODE_FILE##*.}"
+QR_CODE_FORMAT=$(echo "$QR_CODE_FORMAT" | tr '[:lower:]' '[:upper:]')
 #END defaults for options
 
 # Helper function for VERBOSE_FLAG mode
@@ -157,7 +158,7 @@ showTesting() {
   echo
   showVersion
   echo
-    echo "So far tested with MacOS Ventura 13, Ubuntu 22 and Windows 11 (WSL)."
+  echo "So far tested with MacOS Ventura 13, Ubuntu 22 and Windows 11 (WSL)."
 
 }
 
@@ -247,6 +248,8 @@ while [ : ]; do
         echo
       else
         QR_CODE_FILE=$2
+				QR_CODE_FORMAT="${QR_CODE_FILE##*.}"
+        QR_CODE_FORMAT=$(echo "$QR_CODE_FORMAT" | tr '[:lower:]' '[:upper:]')
       fi
 
       if [ -z "$1" ] || [ -z "$2" ]; then
@@ -267,10 +270,11 @@ while [ : ]; do
 done
 #END parsing options
 
-#Check filename
-filename_lower=$(echo "$QR_CODE_FILE" | tr '[:upper:]' '[:lower:]')
-if [[ $filename_lower != *.png ]]; then
+#Check QR code format (and correct it)
+if [[ $QR_CODE_FORMAT != "PNG" ]] && [[ $QR_CODE_FORMAT != "EPS" ]]; then #&& [[ $QR_CODE_FORMAT != "SVG" ]]; then
   QR_CODE_FILE=$QR_CODE_FILE".png"
+  QR_CODE_FORMAT="${QR_CODE_FILE##*.}"
+  QR_CODE_FORMAT=$(echo "$QR_CODE_FORMAT" | tr '[:lower:]' '[:upper:]')
 fi
 
 PrintOut
@@ -301,20 +305,22 @@ if [ "$CORRECTION_FLAG" = true ] ; then
   PrintOut
 fi
 
+################################################################################
+
 # Generation of 'pure' QR code
 # according to ISO/IEC 18004 (IEC 61406-1 requirement 2D-2: 2D symbol content)
 # contains only identificiation link (IEC 61406-1 requirement 2D-3: Symbology)
 # including white border/margin (IEC 61406-1 requirement 2D-5: Quiet zone)
 # including black rim and triangle (IEC CD 61406-2 altered identification link frame for product type-, model-, lot- or batch level)
 # with recommended error correction lebel "Q" (IEC 61406-1 requirement 2D-6: Error correction)
-qrencode --output="$QR_CODE_FILE_TMP" --size $QR_MODULE_SIZE --margin=$(($QR_BORDER/$QR_MODULE_SIZE)) --dpi=$QR_DPI $IDENTIFICATION_LINK_STRING --level=$QR_ERROR_CORRECTION_LEVEL
+qrencode --output="$QR_CODE_FILE" --size $QR_MODULE_SIZE --margin=$(($QR_BORDER/$QR_MODULE_SIZE)) --dpi=$QR_DPI $IDENTIFICATION_LINK_STRING --level=$QR_ERROR_CORRECTION_LEVEL --type=$QR_CODE_FORMAT    # works with PNG/EPS/SVG
 echo "QR code created";
 
 # Identify size of the generated QR code
 if [[ $PLATFORM == 'Linux' ]]; then
-  size=$(identify -format '%[fx:w]' "$QR_CODE_FILE_TMP")
+  size=$(identify -format '%[fx:w]' "$QR_CODE_FILE")
 elif [[ $PLATFORM == 'MacOS' ]]; then
-  size=$(magick identify -format '%[fx:w]' "$QR_CODE_FILE_TMP")
+  size=$(magick identify -format '%[fx:w]' "$QR_CODE_FILE") # works with PNG/EPS, not with SVG
 fi
 
 size_mm=$(echo "scale=2; $size / $QR_MODULE_SIZE * $QR_MODULE_SIZE_MM" | bc)
@@ -323,7 +329,7 @@ size_mm_min=$(echo "scale=2; $size / $QR_MODULE_SIZE * $QR_MODULE_SIZE_MM_MIN" |
 PrintOut "QR code size $size x $size pixels ($size_mm mm; min. $size_mm_min mm!)"
 
 # Apply border, rim and triangle with respect to IEC 61406-1 specs
-convert "$QR_CODE_FILE_TMP" -fill black -stroke black -bordercolor black \
+convert "$QR_CODE_FILE" -fill black -stroke black -bordercolor black \
  -shave $QR_BLACK_RIM -border $QR_BLACK_RIM \
  -draw "path 'M $size,$size L $(($size-$QR_TRIANGLE)),$size L $size,$(($size-$QR_TRIANGLE)) Z ' " \
  "$QR_CODE_FILE"
@@ -352,7 +358,5 @@ if [ "$NEGATIVE_FLAG" = true ] ; then
   PrintOut "   (i) INFO: IEC 61406-1 requirement 2D-11: Positive image; negative QR code shall be avoided"
   PrintOut
 fi
-
-rm  $QR_CODE_FILE_TMP
 
 PrintOut "$(realpath)/$QR_CODE_FILE"
