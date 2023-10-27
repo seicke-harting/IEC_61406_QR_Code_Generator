@@ -3,8 +3,9 @@
 
 # IEC 61406 QR Code Generator
 
-![GitHub License](https://img.shields.io/github/license/seicke-harting/IEC_61406_QR_Code_Generator?style=flat-square)
+![GitHub Release](https://img.shields.io/github/v/release/seicke-harting/IEC_61406_QR_Code_Generator?style=flat-square)
 ![GitHub top language](https://img.shields.io/github/languages/top/seicke-harting/IEC_61406_QR_Code_Generator?style=flat-square)
+![GitHub License](https://img.shields.io/github/license/seicke-harting/IEC_61406_QR_Code_Generator?style=flat-square)
 
 ## Table Of Content
 
@@ -14,9 +15,10 @@
 	- [IEC 61406-2 QR Code Generator](#iec-61406-2-qr-code-generator)
 - [Installation and Usage](#installation-and-usage)
 	- [Runtime Dependencies and their installation](#runtime-dependencies-and-their-installation)
-- [Licence](#licence)
+- [License](#license)
 - [Acknowledgments](#acknowledgments)
 	- [Author of the original project :octocat:](#author-of-the-original-project-octocat)
+
 ## Description
 
 Script for generating IEC 61406 compliant QR codes.
@@ -34,6 +36,8 @@ For QR codes with respect to [IEC 61406-1 :link:](https://webstore.iec.ch/public
 For QR codes with respect to [IEC CD 61406-2 :link:](https://www.iec.ch/dyn/www/f?p=103:38:434099697781774::::FSP_ORG_ID,FSP_APEX_PAGE,FSP_PROJECT_ID:1452,23,112292)
 
 <img src="examples/QR_Code_61406_2.png" width="150">
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Installation and Usage
 ```sh
@@ -67,8 +71,8 @@ $ ./IEC_CD_61406-2_QR_Code_Generator.sh [-options] <uri> <file>
 #### Linux (*Ubuntu 22*)
 
 ```sh
-# getopt: already installed together with Ubuntu
-# mktemp: already installed together with Ubuntu
+# getopt: already installed with Ubuntu
+# mktemp: already installed with Ubuntu
 $ sudo apt-get install qrencode
 $ sudo apt-get install imagemagick
 ```
@@ -131,7 +135,7 @@ First prepare Windows for running Shell Scripts
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Licence
+## License
 
 This program is distributed under the terms of the GNU General Public License (GPLv3).
 

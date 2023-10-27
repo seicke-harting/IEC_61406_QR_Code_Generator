@@ -248,7 +248,7 @@ while [ : ]; do
         echo
       else
         QR_CODE_FILE=$2
-				QR_CODE_FORMAT="${QR_CODE_FILE##*.}"
+        QR_CODE_FORMAT="${QR_CODE_FILE##*.}"
         QR_CODE_FORMAT=$(echo "$QR_CODE_FORMAT" | tr '[:lower:]' '[:upper:]')
       fi
 
