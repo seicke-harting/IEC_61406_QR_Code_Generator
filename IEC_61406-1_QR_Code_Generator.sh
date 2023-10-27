@@ -9,12 +9,13 @@
 checkEnvironment() {
 
   if [[ $(uname -s | tr '[:upper:]' '[:lower:]') == cygwin* ]]; then
-    # Script running under Cygwin (Windows)
+    PLATFORM='Windows'
     showTesting
     exit
   elif [[ $(uname -s | tr '[:upper:]' '[:lower:]') == 'darwin' ]]; then
-    # Script running under MacOS
-    echo
+    PLATFORM='MacOS'
+  elif [[ $(uname -s | tr '[:upper:]' '[:lower:]') == 'linux' ]]; then
+    PLATFORM='Linux'
   else
     showTesting
     exit
@@ -149,12 +150,18 @@ showTesting() {
   echo
   showVersion
   echo
-  echo "So far only tested under MacOS!"
+  echo "So far only tested under MacOS and Ubuntu!"
 
 }
 
+checkEnvironment
+
 #START parsing options
-PARSED_OPTIONS=$(/opt/homebrew/opt/gnu-getopt/bin/getopt --name "${0##*/}" --options chl:nv --longoptions correction,help,level:,negative,verbose,version -- "$@")
+if [[ $PLATFORM == 'Linux' ]]; then
+  PARSED_OPTIONS=$(getopt --name "${0##*/}" --options chl:nv --longoptions correction,help,level:,negative,verbose,version -- "$@")
+elif [[ $PLATFORM == 'MacOS' ]]; then
+  PARSED_OPTIONS=$(/opt/homebrew/opt/gnu-getopt/bin/getopt --name "${0##*/}" --options chl:nv --longoptions correction,help,level:,negative,verbose,version -- "$@")
+fi
 VALID_ARGUMENTS=$?
 if [[ $? -ne 0 ]]; then
     showHelp
@@ -354,7 +361,11 @@ qrencode --output=$QR_CODE_FILE_TMP --size $QR_MODULE_SIZE --margin=$(($QR_BORDE
 echo "QR code created";
 
 # Identify size of the generated QR code
-size=$(magick identify -format '%[fx:w]' $QR_CODE_FILE_TMP )
+if [[ $PLATFORM == 'Linux' ]]; then
+  size=$(identify -format '%[fx:w]' $QR_CODE_FILE_TMP )
+elif [[ $PLATFORM == 'MacOS' ]]; then
+  size=$(magick identify -format '%[fx:w]' $QR_CODE_FILE_TMP )
+fi
 PrintOut "QR code size $size x $size pixels"
 
 # Apply border, rim and triangle with respect to IEC 61406-1 specs

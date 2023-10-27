@@ -18,7 +18,7 @@ For QR codes with respect to [IEC 61406-1 :link:](https://webstore.iec.ch/public
 ## Install & Usage
 ```sh
 $ git clone https://github.com/seicke-harting/IEC_61406_QR_Code_Generator
-$ cd IEC_61406-1_QR_Code_Generator.sh
+$ cd IEC_61406-1_QR_Code_Generator
 $ chmod +x IEC_61406-1_QR_Code_Generator.sh
 $ ./IEC_61406-1_QR_Code_Generator [-options] <uri> <file>
 ```
@@ -32,14 +32,26 @@ $ ./IEC_61406-1_QR_Code_Generator [-options] <uri> <file>
 - [qrencode](https://fukuchi.org/works/qrencode), for generating the "pure" QR code with white border
 - [ImageMagick](https://imagemagick.org), for applying black rim and triangle at the bottom right
 
-#### Installation of Runtime Dependencies (*MacOS Ventura 13*)
+#### Installation of Runtime Dependencies
+
+##### Linux (*Ubuntu 22*)
+
+```sh
+# getopt: already installed with Ubuntu
+# mktemp: already installed with Ubuntu
+$ sudo apt-get install qrencode
+$ sudo apt-get install imagemagick imagemagick-doc
+```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+##### MacOS (*Ventura 13*)
 
 First installation of package manager *[Homebrew](https://brew.sh/index_de)*:
 ```sh
 $ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ````
 
-Installation of dependencies
 ```sh
 $ brew install gnu-getopt
 # mktemp: already installed with MacOS
