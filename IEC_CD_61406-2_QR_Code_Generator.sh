@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# IEC 61406-1 QR Code Generator
+# IEC CD 61406-2 QR Code Generator
 # (c) Sebastian Eicke (sebastian.eicke@harting.com)
-# (c) Dr. Michael Rudschuck, DKE  Deutsche Kommission Elektrotechnik Elektronik Informationstechnik
 # (further information https://github.com/seicke-harting/IEC_61406_QR_Code_Generator)
 
 # Helper function for checking environment
@@ -53,6 +52,7 @@ QR_MODULE_SIZE=10                                           # Module size in pix
 QR_BLACK_RIM=$(($QR_MODULE_SIZE * 1))                       # Black rim:     1 Module     (IEC 61406-1 specs: Z = 1)
 QR_BORDER=$((($QR_MODULE_SIZE * 4) + $QR_BLACK_RIM))        # Border:        4+1 Modules  (IEC 61406-1 specs: X >= 4 + Z = 1)
 QR_TRIANGLE=$((($QR_MODULE_SIZE * 6) + (2*$QR_BLACK_RIM)))  # Size triangle: 6+1 Modules  (IEC 61406-1 specs: Y = 6 and Z = 1)
+QR_TRIANGLE_WHITE=$(($QR_TRIANGLE - (2*$QR_BLACK_RIM)))     # Size white triangle         (IEC CD 61406-2 specs Y = 6)
 QR_DPI=300                                                  # DPI
 QR_ERROR_CORRECTION_LEVEL=Q
 #END Settings
@@ -71,7 +71,7 @@ NEGATIVE_FLAG=false
 SCRIPT_FILE=${0##*/}
 IDENTIFICATION_LINK_STRING="https://github.com/seicke-harting/IEC_61406_QR_Code_Generator"
 QR_CODE_FILE_TMP=$(mktemp -u).png
-QR_CODE_FILE="QR_Code_61406_1.png"
+QR_CODE_FILE="QR_Code_61406_2.png"
 #END defaults for options
 
 # Helper function for VERBOSE_FLAG mode
@@ -86,7 +86,7 @@ PrintOut () {
 # Helper function for showing copyright info
 showCopyright() {
 
-  echo "IEC 61406-1 QR code generator"
+  echo "IEC CD 61406-2 QR code generator"
   echo "Copyright: (c) Sebastian Eicke 2023"
   echo "Licence:  GPLv3"
 
@@ -116,11 +116,12 @@ showUsage() {
   echo
   echo "Example:"
   echo
-  echo "   $ ./$SCRIPT_FILE \"https://github.com/seicke-harting/IEC_61406_QR_Code_Generator\""
-  echo "        \"QR_Code_61406_1.png\""
+  echo "   $ ./$SCRIPT_FILE "
+  echo "        \"https://github.com/seicke-harting/IEC_61406_QR_Code_Generator\""
+  echo "        \"QR_Code_61406_2.png\""
   echo
-  echo "   Encodes https://github.com/seicke-harting/IEC_61406_QR_Code_Generator in a IEC 61406-1"
-  echo "   compliant QR Code, saved as QR_Code_61406_1.png"
+  echo "   Encodes https://github.com/seicke-harting/IEC_61406_QR_Code_Generator in a IEC CD 61406-2"
+  echo "   compliant QR Code, saved as QR_Code_61406_2.png"
   echo
 
 }
@@ -162,6 +163,7 @@ if [[ $PLATFORM == 'Linux' ]]; then
 elif [[ $PLATFORM == 'MacOS' ]]; then
   PARSED_OPTIONS=$(/opt/homebrew/opt/gnu-getopt/bin/getopt --name "${0##*/}" --options chl:nv --longoptions correction,help,level:,negative,verbose,version -- "$@")
 fi
+
 VALID_ARGUMENTS=$?
 if [[ $? -ne 0 ]]; then
     showHelp
@@ -268,87 +270,9 @@ PrintOut "QR error correction level: $QR_ERROR_CORRECTION_LEVEL"
 PrintOut "--------------------------------------------------"
 PrintOut
 
-#START check IEC 61406-1 compliance of identification link
-# (ILS-5: String length) Check length of identification link
-if [ ${#IDENTIFICATION_LINK_STRING} -gt 72 ] || [ ${#IDENTIFICATION_LINK_STRING} -gt 255 ]; then
-  PrintOut
-  PrintOut "   (i) INFO: IEC 61406-1 restriction ILS-5; QR Code content is longer than 72 a/o 255 characters"
-  PrintOut
-fi
-
-# (ILS-6: URL syntax) Check syntax of identification link
-# RFC 3986 original regex: https://www.rfc-editor.org/rfc/rfc2396#appendix-B
-# scheme    = $2 | authority = $4 | path      = $5 | query     = $7 | fragment  = $9
-regex_rfc3986='^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?'
-if ! [[ "$IDENTIFICATION_LINK_STRING" =~ $regex_rfc3986 ]]; then
-  PrintOut
-  PrintOut "   (i) INFO: IEC 61406-1 restriction ILS-6; QR Code content is not RFC 3986 compliant."
-  PrintOut
-else
-  rfc_scheme=${BASH_REMATCH[2]}
-  rfc_authority=${BASH_REMATCH[4]}
-  rfc_path=${BASH_REMATCH[5]}
-  rfc_query=${BASH_REMATCH[7]}
-  rfc_fragment=${BASH_REMATCH[9]}
-fi
-if [[ -z "$rfc_scheme" ]] || [[ -z "$rfc_authority" ]] || [[ -z "$rfc_path" ]]; then
-  if [[ -z "$rfc_scheme}" ]]; then
-    PrintOut
-    PrintOut "   (i) INFO: IEC 61406-1 restriction ILS-6; Missing <uri> scheme in QR Code content (not compliant to RFC 3986, but compliant to IEC 61406-1)"
-    PrintOut
-  fi
-fi
-
-# (ILS-7: Allowed characters) Check characters of identification link
-# Allowed caharacters !#$&'()*+0-9:;@A-Z[]_,-./a-z=?~ (IEC 61406-1 Annex A, Table A.1)
-regex_characters="[][A-Za-z0-9!'\"\#$%&*+,\./:;<=>?@^_{|}~\(\)-]+"
-# [[ ${BASH_REMATCH[0]} != $IDENTIFICATION_LINK_STRING ]] check is workaround,
-# cause of problems with usage of ^-operator in regex
-if [[ ! "$IDENTIFICATION_LINK_STRING" =~ $regex_characters ]] || [[ "${BASH_REMATCH[0]}" != "$IDENTIFICATION_LINK_STRING" ]]; then
-  PrintOut
-  PrintOut "   (i) INFO: IEC 61406-1 restriction ILS-7; QR Code content includes not allowed characters"
-  PrintOut
-fi
-
-# (ILS-8: Uppercase and lowercase characters) Check cases of identification link
-# RFC 3986 original regex: https://www.rfc-editor.org/rfc/rfc2396#appendix-B
-# scheme    = $2 | authority = $4 | path      = $5 | query     = $7 | fragment  = $9
-regex_rfc3986='^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?'
-if [[ "$IDENTIFICATION_LINK_STRING" =~ $regex_rfc3986 ]]; then
-  rfc_scheme=${BASH_REMATCH[2]}
-  rfc_authority=${BASH_REMATCH[4]}
-  rfc_path=${BASH_REMATCH[5]}
-  rfc_query=${BASH_REMATCH[7]}
-  rfc_fragment=${BASH_REMATCH[9]}
-fi
-regex_uppercase='[A-Z]+'
-if [[ ! -z "$rfc_scheme" ]] && [[ "$rfc_scheme" =~ $regex_uppercase ]]; then
-  if [ "$CORRECTION_FLAG" = true ] ; then
-    rfc_scheme_lower=$(echo "$rfc_scheme" | tr '[:upper:]' '[:lower:]')
-    IDENTIFICATION_LINK_STRING=${IDENTIFICATION_LINK_STRING/"$rfc_scheme"/"$rfc_scheme_lower"}
-    PrintOut
-    PrintOut "   (i) INFO: IEC 61406-1 restriction ILS-8; Uppercase character in <uri> scheme; corrected"
-    PrintOut
-  else
-    PrintOut
-    PrintOut "   (i) INFO: IEC 61406-1 restriction ILS-8; Uppercase character in <uri> scheme"
-    PrintOut
-  fi
-fi
-if [[ ! -z "$rfc_authority" ]] && [[ "$rfc_authority" =~ $regex_uppercase ]]; then
-  if [ "$CORRECTION_FLAG" = true ] ; then
-    rfc_authority_lower=$(echo "$rfc_authority" | tr '[:upper:]' '[:lower:]')
-    IDENTIFICATION_LINK_STRING=${IDENTIFICATION_LINK_STRING/"$rfc_authority"/"$rfc_authority_lower"}
-    PrintOut
-    PrintOut "   (i) INFO: IEC 61406-1 restriction ILS-8; Uppercase character in <uri> authority; corrected"
-    PrintOut
-  else
-    PrintOut
-    PrintOut "   (i) INFO: IEC 61406-1 restriction ILS-8; Uppercase character in <uri> authority"
-    PrintOut
-  fi
-fi
-#END check IEC 61406-1 compliance of identification link
+#Start check IEC CD 61406-2 compliance of identification link
+#TODO
+#END check IEC CD 61406-2 compliance of identification link
 
 if [ "$CORRECTION_FLAG" = true ] ; then
   PrintOut
@@ -360,7 +284,7 @@ fi
 # according to ISO/IEC 18004 (IEC 61406-1 requirement 2D-2: 2D symbol content)
 # contains only identificiation link (IEC 61406-1 requirement 2D-3: Symbology)
 # including white border/margin (IEC 61406-1 requirement 2D-5: Quiet zone)
-# including black rim and triangle (IEC 61406-1 requirement 2D-10: Frame)
+# including black rim and triangle (IEC CD 61406-2 altered identification link frame for product type-, model-, lot- or batch level)
 # with recommended error correction lebel "Q" (IEC 61406-1 requirement 2D-6: Error correction)
 qrencode --output=$QR_CODE_FILE_TMP --size $QR_MODULE_SIZE --margin=$(($QR_BORDER/$QR_MODULE_SIZE)) --dpi=$QR_DPI $IDENTIFICATION_LINK_STRING --level=$QR_ERROR_CORRECTION_LEVEL
 echo "QR code created";
@@ -371,6 +295,7 @@ if [[ $PLATFORM == 'Linux' ]]; then
 elif [[ $PLATFORM == 'MacOS' ]]; then
   size=$(magick identify -format '%[fx:w]' $QR_CODE_FILE_TMP )
 fi
+
 PrintOut "QR code size $size x $size pixels"
 
 # Apply border, rim and triangle with respect to IEC 61406-1 specs
@@ -378,6 +303,11 @@ convert $QR_CODE_FILE_TMP -fill black -stroke black -bordercolor black \
  -shave $QR_BLACK_RIM -border $QR_BLACK_RIM \
  -draw "path 'M $size,$size L $(($size-$QR_TRIANGLE)),$size L $size,$(($size-$QR_TRIANGLE)) Z ' " \
  "$QR_CODE_FILE"
+
+convert $QR_CODE_FILE -fill white -stroke white -bordercolor white \
+ -strokewidth $QR_BLACK_RIM \
+ -draw "path 'M $size,$size L $(($size-$QR_TRIANGLE_WHITE)),$size L $size,$(($size-$QR_TRIANGLE_WHITE)) Z ' " \
+ $QR_CODE_FILE
 PrintOut "Frame applied to QR code";
 
 if [ "$NEGATIVE_FLAG" = true ] ; then

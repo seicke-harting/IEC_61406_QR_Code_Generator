@@ -11,6 +11,7 @@
 - [Table Of Content](#table-of-content)
 - [Description](#description)
 	- [IEC 61406-1 QR Code Generator](#iec-61406-1-qr-code-generator)
+	- [IEC 61406-2 QR Code Generator](#iec-61406-2-qr-code-generator)
 - [Installation and Usage](#installation-and-usage)
 	- [Runtime Dependencies and their installation](#runtime-dependencies-and-their-installation)
 - [Licence](#licence)
@@ -24,14 +25,32 @@ Script for generating IEC 61406 compliant QR codes.
 
 For QR codes with respect to [IEC 61406-1 :link:](https://webstore.iec.ch/publication/67673)
 
+<img src="examples/QR_Code_61406_1.png" width="150">
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### IEC 61406-2 QR Code Generator
+
+For QR codes with respect to [IEC CD 61406-2 :link:](https://www.iec.ch/dyn/www/f?p=103:38:434099697781774::::FSP_ORG_ID,FSP_APEX_PAGE,FSP_PROJECT_ID:1452,23,112292)
+
+<img src="examples/QR_Code_61406_2.png" width="150">
 
 ## Installation and Usage
 ```sh
-$ git clone https://github.com/seicke-harting/IEC_61406_QR_Code_Generator
-$ cd IEC_61406-1_QR_Code_Generator
+$ git clone https://github.com/seicke/IEC_61406_QR_Code_Generator
+$ cd IEC_61406_QR_Code_Generator
+```
+
+**IEC 61406-1 QR Code Generator**
+```sh
 $ chmod +x IEC_61406-1_QR_Code_Generator.sh
 $ ./IEC_61406-1_QR_Code_Generator.sh [-options] <uri> <file>
+```
+
+**IEC 61406-2 QR Code Generator**
+```sh
+$ chmod +x IEC_CD_61406-2_QR_Code_Generator.sh
+$ ./IEC_CD_61406-2_QR_Code_Generator.sh [-options] <uri> <file>
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
