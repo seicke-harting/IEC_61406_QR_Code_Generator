@@ -3,7 +3,7 @@
 
 # IEC 61406 QR Code Generator
 
-![GitHub Release](https://img.shields.io/github/v/release/seicke-harting/IEC_61406_QR_Code_Generator?style=flat-square)
+![GitHub Release](https://img.shields.io/github/release/seicke-harting/IEC_61406_QR_Code_Generator?style=flat-square)
 ![GitHub top language](https://img.shields.io/github/languages/top/seicke-harting/IEC_61406_QR_Code_Generator?style=flat-square)
 ![GitHub License](https://img.shields.io/github/license/seicke-harting/IEC_61406_QR_Code_Generator?style=flat-square)
 
