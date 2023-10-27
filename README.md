@@ -9,14 +9,18 @@
 
 Script for generating IEC 61406 compliant QR codes.
 
+### IEC 61406-1 QR Code Generator
+
+For QR codes with respect to [IEC 61406-1 :link:](https://webstore.iec.ch/publication/67673)
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Install & Usage
 ```sh
 $ git clone https://github.com/seicke-harting/IEC_61406_QR_Code_Generator
-$ cd IEC_61406_QR_Code_Generator
-$ chmod +x IEC_61406_Demonstrator
-$ ./IEC_61406_Demonstrator [-options] <uri> <file>
+$ cd IEC_61406-1_QR_Code_Generator
+$ chmod +x IEC_61406-1_QR_Code_Generator
+$ ./IEC_61406-1_QR_Code_Generator [-options] <uri> <file>
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
