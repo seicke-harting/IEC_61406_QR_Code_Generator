@@ -248,6 +248,12 @@ while [ : ]; do
 done
 #END parsing options
 
+#Check filename
+filename_lower=$(echo "$QR_CODE_FILE" | tr '[:upper:]' '[:lower:]')
+if [[ $filename_lower != *.png ]]; then
+  QR_CODE_FILE=$QR_CODE_FILE".png"
+fi
+
 PrintOut
 PrintOut "--------------------------------------------------"
 PrintOut "Parsed options:            $PARSED_OPTIONS"
@@ -261,7 +267,6 @@ PrintOut
 PrintOut "QR error correction level: $QR_ERROR_CORRECTION_LEVEL"
 PrintOut "--------------------------------------------------"
 PrintOut
-
 
 #START check IEC 61406-1 compliance of identification link
 # (ILS-5: String length) Check length of identification link
@@ -372,11 +377,11 @@ PrintOut "QR code size $size x $size pixels"
 convert $QR_CODE_FILE_TMP -fill black -stroke black -bordercolor black \
  -shave $QR_BLACK_RIM -border $QR_BLACK_RIM \
  -draw "path 'M $size,$size L $(($size-$QR_TRIANGLE)),$size L $size,$(($size-$QR_TRIANGLE)) Z ' " \
- $QR_CODE_FILE
+ "$QR_CODE_FILE"
 PrintOut "Frame applied to QR code";
 
 if [ "$NEGATIVE_FLAG" = true ] ; then
-  convert $QR_CODE_FILE -channel RGB -negate $QR_CODE_FILE
+  convert "$QR_CODE_FILE" -channel RGB -negate "$QR_CODE_FILE"
   PrintOut "Converted to negative QR code";
   PrintOut
   PrintOut "   (i) INFO: IEC 61406-1 requirement 2D-11: Positive image; negative QR code  shall be avoided"
@@ -385,4 +390,4 @@ fi
 
 rm  $QR_CODE_FILE_TMP
 
-PrintOut "$(realpath $QR_CODE_FILE)"
+PrintOut "$(realpath)/$QR_CODE_FILE"
