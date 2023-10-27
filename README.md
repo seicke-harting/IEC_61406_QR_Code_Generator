@@ -1,10 +1,21 @@
 <!-- Back to top link -->
 <a name="readme-top"></a>
+
 # IEC 61406 QR Code Generator
 
 ![GitHub License](https://img.shields.io/github/license/seicke-harting/IEC_61406_QR_Code_Generator?style=flat-square)
 ![GitHub top language](https://img.shields.io/github/languages/top/seicke-harting/IEC_61406_QR_Code_Generator?style=flat-square)
 
+## Table Of Content
+
+- [Table Of Content](#table-of-content)
+- [Description](#description)
+	- [IEC 61406-1 QR Code Generator](#iec-61406-1-qr-code-generator)
+- [Installation and Usage](#installation-and-usage)
+	- [Runtime Dependencies and their installation](#runtime-dependencies-and-their-installation)
+- [Licence](#licence)
+- [Acknowledgments](#acknowledgments)
+	- [Author of the original project :octocat:](#author-of-the-original-project-octocat)
 ## Description
 
 Script for generating IEC 61406 compliant QR codes.
@@ -15,37 +26,37 @@ For QR codes with respect to [IEC 61406-1 :link:](https://webstore.iec.ch/public
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Install & Usage
+## Installation and Usage
 ```sh
 $ git clone https://github.com/seicke-harting/IEC_61406_QR_Code_Generator
 $ cd IEC_61406-1_QR_Code_Generator
 $ chmod +x IEC_61406-1_QR_Code_Generator.sh
-$ ./IEC_61406-1_QR_Code_Generator [-options] <uri> <file>
+$ ./IEC_61406-1_QR_Code_Generator.sh [-options] <uri> <file>
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### Runtime Dependencies
+### Runtime Dependencies and their installation
 
 - [optget](https://www.gnu.org/software/libc/manual/html_node/Getopt.html), for parsing command line options
 - [mktemp](https://www.gnu.org/software/autogen/mktemp.html), for creating temporary picture file
 - [qrencode](https://fukuchi.org/works/qrencode), for generating the "pure" QR code with white border
 - [ImageMagick](https://imagemagick.org), for applying black rim and triangle at the bottom right
 
-#### Installation of Runtime Dependencies
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-##### Linux (*Ubuntu 22*)
+#### Linux (*Ubuntu 22*)
 
 ```sh
-# getopt: already installed with Ubuntu
-# mktemp: already installed with Ubuntu
+# getopt: already installed together with Ubuntu
+# mktemp: already installed together with Ubuntu
 $ sudo apt-get install qrencode
-$ sudo apt-get install imagemagick imagemagick-doc
+$ sudo apt-get install imagemagick
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-##### MacOS (*Ventura 13*)
+#### MacOS (*Ventura 13*)
 
 First installation of package manager *[Homebrew](https://brew.sh/index_de)*:
 ```sh
@@ -61,7 +72,47 @@ $ brew install imagemagick
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## LICENSE
+#### Windows (*11 and WSL*)
+
+First prepare Windows for running Shell Scripts
+
+1. Go to Settings > Update & Security > For Developers. Activate the *Developer Mode* radio button.
+2. Search in Settings for "*Windows Features*", chose "Turn Windows features on or off".
+3. Scroll down to "Windows-Subsystem for Linux" and check the corresponding box to install (WSL).
+4. BASH will be now available in the Command Prompt and PowerShell
+5. Open https://aka.ms/wslstore and install one of the Linux distributions, continuing here with "Debian" as an example
+6. If necessary, open https://aka.ms/wsl2kernel, download and install the Linux kernel update package.
+7. Maybe you have to active Hyper-V (Command Prompt):
+
+    ```Command Prompt
+    $DISM /Online /Enable-Feature /All /FeatureName:Microsoft-Hyper-V
+    ```
+
+8. Maybe you have to set the WSL version (Command Prompt):
+
+    ```Command prompt
+    $ wsl --set-default-version 1
+    ```
+
+9. Maybe you have to setup a Linux username and password (Powershell):
+
+    ```sh
+    $ wsl -d Debian -u root
+    $ passwd root
+    ````
+
+10. Install dependencies (WSL)
+
+    ```sh
+    # getopt: already installed together with Ubuntu
+    # mktemp: already installed together with Ubuntu
+    $ sudo apt-get install qrencode
+    $ sudo apt-get install imagemagick
+    ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Licence
 
 This program is distributed under the terms of the GNU General Public License (GPLv3).
 
