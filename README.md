@@ -41,7 +41,7 @@ For QR codes with respect to [IEC CD 61406-2 :link:](https://www.iec.ch/dyn/www/
 
 ## Installation and Usage
 ```sh
-$ git clone https://github.com/seicke/IEC_61406_QR_Code_Generator
+$ git clone https://github.com/seicke-harting/IEC_61406_QR_Code_Generator
 $ cd IEC_61406_QR_Code_Generator
 ```
 
