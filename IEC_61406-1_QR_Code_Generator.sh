@@ -3,7 +3,7 @@
 # IEC 61406-1 QR Code Generator
 # (c) Sebastian Eicke (sebastian.eicke@harting.com)
 # (c) Dr. Michael Rudschuck, DKE  Deutsche Kommission Elektrotechnik Elektronik Informationstechnik
-# (further information https://github.com/seicke-harting/IEC_61406_QR_Code_Generator)
+# (further information https://github.com/seicke/IEC_61406_QR_Code_Generator)
 
 # Helper function for checking environment
 checkEnvironment() {
@@ -74,7 +74,7 @@ URLLINE_FLAG=false
 
 #START Defaults for options and parameter
 SCRIPT_FILE=${0##*/}
-IDENTIFICATION_LINK_STRING="https://github.com/seicke-harting/IEC_61406_QR_Code_Generator"
+IDENTIFICATION_LINK_STRING="https://github.com/seicke/IEC_61406_QR_Code_Generator"
 QR_CODE_FILE="QR_Code_61406_1.png"
 QR_CODE_FORMAT="${QR_CODE_FILE##*.}"
 QR_CODE_FORMAT=$(echo "$QR_CODE_FORMAT" | tr '[:lower:]' '[:upper:]')
@@ -124,10 +124,10 @@ showUsage() {
   echo "Example:"
   echo
   echo "   $ ./$SCRIPT_FILE "
-  echo "        \"https://github.com/seicke-harting/IEC_61406_QR_Code_Generator\""
+  echo "        \"https://github.com/seicke/IEC_61406_QR_Code_Generator\""
   echo "        \"QR_Code_61406_1.png\""
   echo
-  echo "   Encodes https://github.com/seicke-harting/IEC_61406_QR_Code_Generator in a IEC 61406-1"
+  echo "   Encodes https://github.com/seicke/IEC_61406_QR_Code_Generator in a IEC 61406-1"
   echo "   compliant QR Code, saved as QR_Code_61406_1.png"
   echo
 
@@ -401,10 +401,15 @@ elif [[ $PLATFORM == 'MacOS' ]]; then
   size=$(magick identify -format '%[fx:w]' "$QR_CODE_FILE") # works with PNG/EPS, not with SVG
 fi
 
+# (2D-4: Module size)
 size_mm=$(echo "scale=2; $size / $QR_MODULE_SIZE * $QR_MODULE_SIZE_MM" | bc)
 size_mm_min=$(echo "scale=2; $size / $QR_MODULE_SIZE * $QR_MODULE_SIZE_MM_MIN" | bc)
-
 PrintOut "QR code size $size x $size pixels ($size_mm mm; min. $size_mm_min mm!)"
+
+# (2D-5: Quiet zone)
+size_mm=$(echo "scale=2; (($size / $QR_MODULE_SIZE) + 1) * $QR_MODULE_SIZE_MM" | bc)
+size_mm_min=$(echo "scale=2; (($size / $QR_MODULE_SIZE) + 1) * $QR_MODULE_SIZE_MM_MIN" | bc)
+PrintOut "QR code size (incl. 'quiet zone') ($size_mm mm; min. $size_mm_min mm!)"
 
 # Apply border, rim and triangle with respect to IEC 61406-1 specs
 convert "$QR_CODE_FILE" -fill black -stroke black -bordercolor black \
@@ -432,4 +437,4 @@ if [ "$NEGATIVE_FLAG" = true ] ; then
   PrintOut
 fi
 
-PrintOut "$(realpath)/$QR_CODE_FILE"
+PrintOut "$(realpath .)/$QR_CODE_FILE"
