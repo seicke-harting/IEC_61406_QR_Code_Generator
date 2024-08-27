@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# IEC CD 61406-2 QR Code Generator
+# IEC 61406-2 QR Code Generator
 # (c) Sebastian Eicke (sebastian.eicke@harting.com)
-# (further information https://github.com/seicke-harting/IEC_61406_QR_Code_Generator)
+# (further information https://github.com/seicke/IEC_61406_QR_Code_Generator)
 
 # Helper function for checking environment
 checkEnvironment() {
@@ -51,10 +51,10 @@ checkDependencies() {
 QR_MODULE_SIZE=10                                           # Module size in pixels
 QR_MODULE_SIZE_MM=.35                                       # Module size in mm
 QR_MODULE_SIZE_MM_MIN=.25                                   # Minimal module size in mm
-QR_BLACK_RIM=$(($QR_MODULE_SIZE * 1))                       # Black rim:     1 Module     (IEC 61406-1 specs: Z = 1)
-QR_BORDER=$((($QR_MODULE_SIZE * 4) + $QR_BLACK_RIM))        # Border:        4+1 Modules  (IEC 61406-1 specs: X >= 4 + Z = 1)
-QR_TRIANGLE=$((($QR_MODULE_SIZE * 6) + (2*$QR_BLACK_RIM)))  # Size triangle: 6+1 Modules  (IEC 61406-1 specs: Y = 6 and Z = 1)
-QR_TRIANGLE_WHITE=$(($QR_TRIANGLE - (2*$QR_BLACK_RIM)))     # Size white triangle         (IEC CD 61406-2 specs Y = 6)
+QR_BLACK_RIM=$(($QR_MODULE_SIZE * 1))                       # Black rim:     1 Module    (IEC 61406-1 specs: Z = 1)
+QR_BORDER=$((($QR_MODULE_SIZE * 4) + $QR_BLACK_RIM))        # Border:        4+1 Modules (IEC 61406-1 specs: X >= 4 + Z = 1)
+QR_TRIANGLE=$((($QR_MODULE_SIZE * 6) + (2*$QR_BLACK_RIM)))  # Size triangle: 6+1 Modules (IEC 61406-1 specs: Y = 6 and Z = 1)
+QR_TRIANGLE_WHITE=$(($QR_TRIANGLE - (2*$QR_BLACK_RIM)))     # Size white triangle        (IEC 61406-2 specs Y = 6)
 QR_Text=$(($QR_MODULE_SIZE * 3))                            # Font size of optional URL text line
 QR_DPI=300                                                  # DPI
 QR_ERROR_CORRECTION_LEVEL=Q
@@ -74,7 +74,7 @@ URLLINE_FLAG=false
 
 #START Defaults for options and parameter
 SCRIPT_FILE=${0##*/}
-IDENTIFICATION_LINK_STRING="https://github.com/seicke-harting/IEC_61406_QR_Code_Generator"
+IDENTIFICATION_LINK_STRING="https://github.com/seicke/IEC_61406_QR_Code_Generator?.PARAM1=VALUE1&.PARAM2=VALUE2"
 QR_CODE_FILE="QR_Code_61406_2.png"
 QR_CODE_FORMAT="${QR_CODE_FILE##*.}"
 QR_CODE_FORMAT=$(echo "$QR_CODE_FORMAT" | tr '[:lower:]' '[:upper:]')
@@ -92,9 +92,9 @@ PrintOut () {
 # Helper function for showing copyright info
 showCopyright() {
 
-  echo "IEC CD 61406-2 QR code generator"
+  echo "IEC 61406-2 QR code generator"
   echo "Copyright: (c) Sebastian Eicke 2023"
-  echo "Licence:  GPLv3"
+  echo "Licence: GPLv3"
 
 }
 
@@ -124,10 +124,10 @@ showUsage() {
   echo "Example:"
   echo
   echo "   $ ./$SCRIPT_FILE "
-  echo "        \"https://github.com/seicke-harting/IEC_61406_QR_Code_Generator\""
+  echo "        \"https://github.com/seicke/IEC_61406_QR_Code_Generator\""
   echo "        \"QR_Code_61406_2.png\""
   echo
-  echo "   Encodes https://github.com/seicke-harting/IEC_61406_QR_Code_Generator in a IEC CD 61406-2"
+  echo "   Encodes https://github.com/seicke/IEC_61406_QR_Code_Generator in a IEC 61406-2"
   echo "   compliant QR Code, saved as QR_Code_61406_2.png"
   echo
 
@@ -295,9 +295,32 @@ fi
 PrintOut "--------------------------------------------------"
 PrintOut
 
-#Start check IEC CD 61406-2 compliance of identification link
-#TODO
-#END check IEC CD 61406-2 compliance of identification link
+#START check IEC 61406-2 compliance of identification link
+
+# Parse identification link
+IDENTIFICATION_LINK_PROTOCOL_STRING=$(echo "$IDENTIFICATION_LINK_STRING" | grep :// | sed -e's,^\(.*://\).*,\1,g')
+IDENTIFICATION_LINK_HOST_STRING=$(echo "${IDENTIFICATION_LINK_STRING/${IDENTIFICATION_LINK_PROTOCOL_STRING}/}" | cut -d/ -f1)
+IDENTIFICATION_LINK_PATHQUERY_STRING=$(echo "${IDENTIFICATION_LINK_STRING/${IDENTIFICATION_LINK_PROTOCOL_STRING}/}" | cut -d/ -f2-)
+IDENTIFICATION_LINK_QUERY_STRING=$(echo "$IDENTIFICATION_LINK_PATHQUERY_STRING" | grep ? | cut -d? -f2-)
+if [ -n "$IDENTIFICATION_LINK_QUERY_STRING" ]; then
+    IDENTIFICATION_LINK_PATH_STRING=$(echo "$IDENTIFICATION_LINK_PATHQUERY_STRING" | sed "s?${IDENTIFICATION_LINK_QUERY_STRING}??g" | sed 's/^?//')
+else
+    IDENTIFICATION_LINK_PATH_STRING="$IDENTIFICATION_LINK_PATHQUERY_STRING"
+fi
+
+# Parse query parameters of identification link
+IFS='&' read -ra IDENTIFICATION_LINK_PARAMS <<< "$IDENTIFICATION_LINK_QUERY_STRING"
+for IDENTIFICATION_LINK_PARAM in "${IDENTIFICATION_LINK_PARAMS[@]}"; do
+    IFS='=' read -r key value <<< "$IDENTIFICATION_LINK_PARAM"
+    value=$(echo -e "${value//%/\\x}")
+
+    # 5.3 SIDIs as parameter names
+    if [[ ! $key =~ ^\. ]]; then
+      echo "'$key' parameter name does not start with a '.'!"
+    fi
+
+done
+#END check IEC 61406-2 compliance of identification link
 
 if [ "$CORRECTION_FLAG" = true ] ; then
   PrintOut
@@ -311,7 +334,7 @@ fi
 # according to ISO/IEC 18004 (IEC 61406-1 requirement 2D-2: 2D symbol content)
 # contains only identificiation link (IEC 61406-1 requirement 2D-3: Symbology)
 # including white border/margin (IEC 61406-1 requirement 2D-5: Quiet zone)
-# including black rim and triangle (IEC CD 61406-2 altered identification link frame for product type-, model-, lot- or batch level)
+# including black rim and triangle (IEC 61406-2 altered identification link frame for product type-, model-, lot- or batch level)
 # with recommended error correction lebel "Q" (IEC 61406-1 requirement 2D-6: Error correction)
 qrencode --output="$QR_CODE_FILE" --size $QR_MODULE_SIZE --margin=$(($QR_BORDER/$QR_MODULE_SIZE)) --dpi=$QR_DPI $IDENTIFICATION_LINK_STRING --level=$QR_ERROR_CORRECTION_LEVEL --type=$QR_CODE_FORMAT    # works with PNG/EPS/SVG
 echo "QR code created";
@@ -323,10 +346,15 @@ elif [[ $PLATFORM == 'MacOS' ]]; then
   size=$(magick identify -format '%[fx:w]' "$QR_CODE_FILE") # works with PNG/EPS, not with SVG
 fi
 
+# (2D-4: Module size)
 size_mm=$(echo "scale=2; $size / $QR_MODULE_SIZE * $QR_MODULE_SIZE_MM" | bc)
 size_mm_min=$(echo "scale=2; $size / $QR_MODULE_SIZE * $QR_MODULE_SIZE_MM_MIN" | bc)
-
 PrintOut "QR code size $size x $size pixels ($size_mm mm; min. $size_mm_min mm!)"
+
+# (2D-5: Quiet zone)
+size_mm=$(echo "scale=2; (($size / $QR_MODULE_SIZE) + 1) * $QR_MODULE_SIZE_MM" | bc)
+size_mm_min=$(echo "scale=2; (($size / $QR_MODULE_SIZE) + 1) * $QR_MODULE_SIZE_MM_MIN" | bc)
+PrintOut "QR code size (incl. 'quiet zone') ($size_mm mm; min. $size_mm_min mm!)"
 
 # Apply border, rim and triangle with respect to IEC 61406-1 specs
 convert "$QR_CODE_FILE" -fill black -stroke black -bordercolor black \
@@ -359,4 +387,4 @@ if [ "$NEGATIVE_FLAG" = true ] ; then
   PrintOut
 fi
 
-PrintOut "$(realpath)/$QR_CODE_FILE"
+PrintOut "$(realpath .)/$QR_CODE_FILE"
